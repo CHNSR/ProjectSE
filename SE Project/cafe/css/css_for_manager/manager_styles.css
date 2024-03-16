@@ -1,0 +1,154 @@
+/* styles.css */
+
+body {
+    background-color: #34f6b5;
+    color: black;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav {
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.nav a {
+    color: black;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.nav a:hover {
+    color: black;
+}
+
+.nav button {
+    border: none;
+    background-color: green;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.nav button:hover {
+    background-color: limegreen;
+}
+
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 100px 0;
+}
+
+.hero h1 {
+    color: green;
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.hero .buttons {
+    display: flex;
+}
+
+.hero .buttons button {
+    margin-right: 20px;
+}
+
+.phone {
+    width: 400px;
+    height: 800px;
+    background-image: url("phone.png"); /* Replace with your own image URL */
+    background-size: cover;
+    background-position: center;
+}
+
+/* Add this style to position and style the hero image */
+/* Adjust the width and height properties as needed */
+.hero-image {
+    width: 500px;
+    height: 500px;
+    background-image: url("../image/index_pic.png"); /* Replace with the actual path to your image file */
+    background-size: cover;
+    background-position: center;
+    margin-left: auto; /* To center the image horizontally */
+    margin-right: auto;
+}
+
+/* Modify the styles for the logo container */
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    max-width: 50px; /* Adjust the maximum width of the logo image */
+    max-height: 50px; /* Adjust the maximum height of the logo image */
+}
+
+.logo h5 {
+    margin-left: 10px; /* Adjust the margin as needed to create space between the logo and text */
+    color: black; /* Set the text color to white */
+}
+
+/* Styles for the Log In button */
+.links button {
+    border: 2px solid red; /* Add a yellow border */
+    background-color: transparent;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, border-color 0.3s; /* Add border-color to the transition */
+}
+
+.links button:hover {
+    background-color: red;
+    border-color: transparent; /* Set border color to transparent on hover */
+}
+
+/* index_styles.css */
+
+.buttons button {
+    background-color: transparent;
+    border: 3px solid red; /* Slightly smaller border */
+    border-radius: 20px;
+    color: black;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.buttons button:hover {
+    background-color: red;
+    color: black;
+}
+
+/* index_styles.css */
+
+/* เพิ่มไฮลิทที่ต้องการเมื่อนำเมาส์ไปวางเหนือลิงก์ */
+.nav a:not(.links button):hover {
+    border-bottom: 2px solid black; /* เส้นใต้สีเหลือง */
+    padding-bottom: 3px; /* พื้นที่ด้านล่างของเส้นใต้ */
+}
+
+/* สไตล์เมื่อนำเมาส์ไปวางเหนือปุ่ม Log In */
+.links button:hover {
+    background-color: red; /* สีพื้นหลังเมื่อนำเมาส์ไปวาง */
+    color: black; /* สีตัวอักษรเมื่อนำเมาส์ไปวาง */
+}
