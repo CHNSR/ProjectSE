@@ -19,6 +19,9 @@ if (!isset($_SESSION['cus_login'])) {
     $cus_gender = $row['cus_gender'];
     $cus_birthday = $row['cus_birthday'];
     $cus_email = $row['cus_email'];
+
+    
+   
 }
 
 ?>
@@ -30,13 +33,13 @@ if (!isset($_SESSION['cus_login'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- อย่าลืมเปลี่ยน paht เวลาย้ายไฟล์ -->
-    <link rel="stylesheet" href="../../css/add_styles.css">
+    <link rel="stylesheet" href="../../css/css_for_user/add_styles_for_user.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <title>Edit Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-    <!-- อย่าลืมเปลี่ยน paht เวลาย้ายไฟล์ -->
-    <link rel="stylesheet" href="../../css/infor_styles.css"> <!-- Include your CSS file -->
+  
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 
 
@@ -45,9 +48,9 @@ if (!isset($_SESSION['cus_login'])) {
 
 <body>
 
+    
     <div class="nav">
         <div class="logo-container">
-            <!-- อย่าลืมเปลี่ยน paht เวลาย้ายไฟล์ -->
             <a href="#"><img src="../../image/coffee-cup.png" class="logo" /></a>
             <h2>P E R T</h2>
         </div>
@@ -73,16 +76,18 @@ if (!isset($_SESSION['cus_login'])) {
                                     <div class="col-md-6 mb-4">
 
                                         <div class="form-outline">
-                                            <input type="text" name="firstName" class="form-control" value="<?php echo $cus_firstname ?>">
                                             <label class="form-label" for="firstName">First Name</label>
+                                            <input type="text" name="firstName" class="form-control" value="<?php echo $cus_firstname ?>">
+                                            
                                         </div>
 
                                     </div>
                                     <div class="col-md-6 mb-4">
 
                                         <div class="form-outline">
-                                            <input type="text" name="lastName" class="form-control" value="<?php echo $cus_lastname ?>">
                                             <label class="form-label" for="lastName">Last Name</label>
+                                            <input type="text" name="lastName" class="form-control" value="<?php echo $cus_lastname ?>">
+                                            
                                         </div>
 
                                     </div>
@@ -92,19 +97,20 @@ if (!isset($_SESSION['cus_login'])) {
                                     <div class="col-md-6 mb-4 d-flex align-items-center">
 
                                         <div class="form-outline datepicker w-100">
-                                            <input type="date" class="form-control" name="birthdayDate" id="birthdayDate" value="<?php echo $cus_birthday ?>" required>
                                             <label for="birthdayDate" class="form-label">Birthday</label>
+                                            <input type="date" class="form-control" name="birthdayDate" id="birthdayDate" value="<?php echo $cus_birthday ?>" required>
+                                            
                                         </div>
 
                                     </div>
                                     <div class="col-md-6 mb-4">
-
+                                        <h6 class="mb-2 pb-1">Gender: </h6>
                                         <select class="form-select" name="gender" required>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
                                             <option value="Other">Other</option>
                                         </select>
-                                        <h6 class="mb-2 pb-1">Gender: </h6>
+                                        
 
                                     </div>
                                 </div>
@@ -112,16 +118,18 @@ if (!isset($_SESSION['cus_login'])) {
                                 <div class="row">
                                     <div class="col-md-6 mb-4 pb-2">
                                         <div class="form-outline">
-                                            <input type="email" name="email" class="form-control" value="<?php echo $cus_email ?>">
                                             <label class="form-label" for="email">Email</label>
+                                            <input type="email" name="email" class="form-control" value="<?php echo $cus_email ?>">
+                                            
                                         </div>
 
                                     </div>
                                     <div class="col-md-6 mb-4 pb-2">
 
                                         <div class="form-outline">
-                                            <input type="text" class="form-control" name="phoneNumber" pattern="\d{3}-\d{3}-\d{4}" minlength="12" maxlength="12" oninput="formatPhoneNumber(this)" value="<?php echo $cus_phone_number ?>" required>
                                             <label class="form-label" for="phoneNumber">Phone Number</label>
+                                            <input type="text" class="form-control" name="phoneNumber" pattern="\d{3}-\d{3}-\d{4}" minlength="12" maxlength="12" oninput="formatPhoneNumber(this)" value="<?php echo $cus_phone_number ?>" required>
+                                            
                                         </div>
 
                                     </div>

@@ -1,7 +1,7 @@
 /* styles.css */
 
 body {
-    background-color: #34f6b5;
+    background-color: #a3e9a4;
     color: black;
     font-family: Arial, sans-serif;
 }
@@ -12,7 +12,7 @@ body {
 }
 
 .nav {
-    background-color: white;
+    background-color:#f1f8e9;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -151,4 +151,14 @@ body {
 .links button:hover {
     background-color: red; /* สีพื้นหลังเมื่อนำเมาส์ไปวาง */
     color: black; /* สีตัวอักษรเมื่อนำเมาส์ไปวาง */
+}
+.container .btn.btn-primary {
+    background-color: #ffb300;
+    border-color: #ffb300;
+    color: #000000; /* เพื่อให้ข้อความภายในปุ่มเป็นสีขาว */
+}
+
+.container .btn.btn-primary:hover {
+    background-color: #e69500; /* เพิ่มสีเมื่อชี้ชื่อ */
+    border-color: #e69500;
 }

@@ -1,8 +1,8 @@
 /* styles.css */
 
 body {
-    background-color: #34f6b5;
-    color: black;
+    background-color: #a3e9a4;
+    color: #33691e;
     font-family: Arial, sans-serif;
 }
 
@@ -12,7 +12,7 @@ body {
 }
 
 .nav {
-    background-color: white;
+    background-color: #f1f8e9;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -20,26 +20,29 @@ body {
 }
 
 .nav a {
-    color: black;
+    color: rgb(38, 80, 38);
     text-decoration: none;
     margin: 0 10px;
 }
 
 .nav a:hover {
-    color: black;
+    color: rgb(0, 0, 0);
 }
 
 .nav button {
     border: none;
-    background-color: green;
-    color: black;
+    background-color: #f69988;
+    color: #f69988;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
 }
 
 .nav button:hover {
-    background-color: limegreen;
+    background-color: #e84e40;
+}
+.nav h2{
+    color: rgb(0, 0, 0);
 }
 
 .hero {
@@ -101,14 +104,14 @@ body {
 
 .logo h5 {
     margin-left: 10px; /* Adjust the margin as needed to create space between the logo and text */
-    color: black; /* Set the text color to white */
+    color: rgb(30, 102, 30); /* Set the text color to white */
 }
 
 /* Styles for the Log In button */
 .links button {
-    border: 2px solid red; /* Add a yellow border */
+    border: 2px solid rgb(87, 148, 87); /* Add a yellow border */
     background-color: transparent;
-    color: black;
+    color: yellowgreen;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
@@ -117,7 +120,7 @@ body {
 }
 
 .links button:hover {
-    background-color: red;
+    background-color: #e84e40;
     border-color: transparent; /* Set border color to transparent on hover */
 }
 
@@ -125,9 +128,9 @@ body {
 
 .buttons button {
     background-color: transparent;
-    border: 3px solid red; /* Slightly smaller border */
+    border: 3px solid rgb(228, 228, 90); /* Slightly smaller border */
     border-radius: 20px;
-    color: black;
+    color: greenyellow;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -135,20 +138,20 @@ body {
 }
 
 .buttons button:hover {
-    background-color: red;
-    color: black;
+    background-color: rgb(241, 241, 105);
+    color: green;
 }
 
 /* index_styles.css */
 
 /* เพิ่มไฮลิทที่ต้องการเมื่อนำเมาส์ไปวางเหนือลิงก์ */
 .nav a:not(.links button):hover {
-    border-bottom: 2px solid black; /* เส้นใต้สีเหลือง */
+    border-bottom: 2px solid rgb(79, 185, 79); /* เส้นใต้สีเหลือง */
     padding-bottom: 3px; /* พื้นที่ด้านล่างของเส้นใต้ */
 }
 
 /* สไตล์เมื่อนำเมาส์ไปวางเหนือปุ่ม Log In */
 .links button:hover {
-    background-color: red; /* สีพื้นหลังเมื่อนำเมาส์ไปวาง */
-    color: black; /* สีตัวอักษรเมื่อนำเมาส์ไปวาง */
+    background-color: #e84e40; /* สีพื้นหลังเมื่อนำเมาส์ไปวาง */
+    color: rgb(180, 233, 100); /* สีตัวอักษรเมื่อนำเมาส์ไปวาง */
 }

@@ -47,7 +47,7 @@ session_start();
         <!-- Add your logo here -->
         <img src="image/coffee-cup.png" alt="Logo" class="mx-auto d-block mb-4" style="max-width: 100px;">
         <h3 class="mt-4">Welcome</h3>
-        <p class="pink-text">Customer Registration</p>
+        <p class="pink-text">Customer Register</p>
         <hr>
         <form action="condb/RegisCusDB.php" method="post">
             <div class="mb-3 form-label-left">
@@ -87,7 +87,7 @@ session_start();
                 <input type="password" class="form-control" name="password" minlength="5" maxlength="20" required>
             </div>
             <div class="d-grid gap-2">
-                <button type="submit" name="register" class="btn btn-warning" mx-auto">Register</button>
+                <button type="submit" name="register" class="btn btn-outline-danger" mx-auto">Register</button>
             </div>
         </form>
     </div>

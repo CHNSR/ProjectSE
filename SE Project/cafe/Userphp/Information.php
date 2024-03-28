@@ -22,8 +22,11 @@ if (!isset($_SESSION['cus_login'])) {
     $cus_birthday = $row['cus_birthday'];
     $cus_email = $row['cus_email'];
 }
+
 $point_query = "SELECT * FROM points WHERE p_customerName = '$cus_username' ";
 $point_row = mysqli_query($conn, $point_query);
+$point = mysqli_fetch_assoc($point_row);
+$point_total = $point['p_pointTotal'];
 
 // เมื่อมีการส่งข้อมูลลบผ่านฟอร์ม
 if (isset($_POST['delete'])) {
@@ -78,6 +81,7 @@ if (isset($_POST['delete'])) {
         </div>
         <div class="links">
             <a href="Userinter.php">Menu</a>
+            <a href="#"><i class="bi bi-coin"></i> <?php echo $point_total ?> Point</a>
             <a href="Information.php">Information</a>
             <button id="LogoutBtn"><i class="bi bi-check2-circle"></i> Log Out</button>
         </div>
@@ -131,11 +135,9 @@ if (isset($_POST['delete'])) {
                                     <hr class="mt-0 mb-4">
                                     <div class="row pt-1">
                                         <div class="col-6 mb-3">
-                                            <?php
-                                            $point = mysqli_fetch_assoc($point_row)
-                                            ?>
+                                            
                                             <h6>total point</h6>
-                                            <p class="text-muted"><?php echo $point['p_pointTotal'] ?></p>
+                                            <p class="text-muted"><?php echo $point_total ?></p>
                                         </div>
 
                                     </div>

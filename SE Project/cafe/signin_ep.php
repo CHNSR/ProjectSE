@@ -41,7 +41,7 @@ session_start();
                 <input type="password" class="form-control" name="password" minlength="5" maxlength="20" required>
             </div>
             <div class="d-grid gap-2">
-                <button type="submit" name="signin" class="btn btn-primary mx-auto">Sign In</button>
+                <button type="submit" name="signin" class="btn btn-outline-info">Sign In</button>
             </div>
         </form>
     </div>

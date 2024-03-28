@@ -20,9 +20,7 @@ session_start();
             <h2>P E R T</h2>
         </div>
         <div class="links">
-            <a href="#">coming soon</a>
-            <a href="#">coming soon</a>
-            <a href="#">coming soon</a>
+            
             <button id="RegisBtn"><i class="bi bi-check2-circle"></i> Registeration</button>
         </div>
     </div>

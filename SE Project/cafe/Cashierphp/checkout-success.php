@@ -57,6 +57,11 @@ if (!isset($_SESSION['cashier_login'])) {
             // Redirect to the login page or any other page you want
             window.location.href = '../condb/logout.php'; // Replace 'login.html' with the desired page
         });
+        
+        // Wait for 5 seconds before redirecting
+        setTimeout(function() {
+            window.location.href = 'index.php';
+        }, 5000); // 5000 milliseconds = 5 seconds
     </script>
 </body>
 
