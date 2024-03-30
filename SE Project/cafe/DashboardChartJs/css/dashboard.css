@@ -1,3 +1,24 @@
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.chart-container {
+    width: 50%;
+    margin-top: 20px;
+}
+
+#filterForm {
+    display: flex;
+    align-items: center;
+}
+
+#filterForm label, #filterForm input[type="date"], #filterForm select, #filterForm input[type="submit"] {
+    margin: 5px;
+}
+/* styles.css */
 /* styles.css */
 
 body {
@@ -12,7 +33,7 @@ body {
 }
 
 .nav {
-    background-color: white;
+    background-color: #f1f8e9;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -50,7 +71,7 @@ body {
 }
 
 .hero h1 {
-    color: green;
+    color: #880e4f;
     font-size: 48px;
     margin-bottom: 20px;
 }
@@ -81,7 +102,7 @@ body {
 .hero-image {
     width: 500px;
     height: 500px;
-    background-image: url("../image/index_pic.png"); /* Replace with the actual path to your image file */
+    background-image: url("../../image/index_pic.png"); /* Replace with the actual path to your image file */
     background-size: cover;
     background-position: center;
     margin-left: auto; /* To center the image horizontally */
@@ -106,7 +127,7 @@ body {
 
 /* Styles for the Log In button */
 .links button {
-    border: 2px solid red; /* Add a yellow border */
+    border: 2px solid #ff6f00; /* Add a yellow border */
     background-color: transparent;
     color: black;
     padding: 10px 20px;
@@ -117,7 +138,7 @@ body {
 }
 
 .links button:hover {
-    background-color: red;
+    background-color: #bdbdbd;
     border-color: transparent; /* Set border color to transparent on hover */
 }
 
@@ -125,7 +146,7 @@ body {
 
 .buttons button {
     background-color: transparent;
-    border: 3px solid red; /* Slightly smaller border */
+    border: 3px solid #616161; /* Slightly smaller border */
     border-radius: 20px;
     color: black;
     padding: 10px 20px;
@@ -135,8 +156,8 @@ body {
 }
 
 .buttons button:hover {
-    background-color: red;
-    color: black;
+    background-color: #616161;
+    color: rgb(255, 253, 253);
 }
 
 /* index_styles.css */
@@ -149,6 +170,9 @@ body {
 
 /* สไตล์เมื่อนำเมาส์ไปวางเหนือปุ่ม Log In */
 .links button:hover {
-    background-color: red; /* สีพื้นหลังเมื่อนำเมาส์ไปวาง */
+    background-color: #ffa000; /* สีพื้นหลังเมื่อนำเมาส์ไปวาง */
     color: black; /* สีตัวอักษรเมื่อนำเมาส์ไปวาง */
 }
+
+
+
