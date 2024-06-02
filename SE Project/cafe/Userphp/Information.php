@@ -15,6 +15,7 @@ if (!isset($_SESSION['cus_login'])) {
     $result = mysqli_query($conn, $sql_cus);
     $row = mysqli_fetch_assoc($result);
 
+    $cus_customerID = $row['cus_customerID'];
     $cus_firstname = $row['cus_firstname'];
     $cus_lastname = $row['cus_lastname'];
     $cus_phone_number = $row['cus_phoneNumber'];
@@ -23,7 +24,7 @@ if (!isset($_SESSION['cus_login'])) {
     $cus_email = $row['cus_email'];
 }
 
-$point_query = "SELECT * FROM points WHERE p_customerName = '$cus_username' ";
+$point_query = "SELECT * FROM points WHERE p_customerID = '$cus_customerID' ";
 $point_row = mysqli_query($conn, $point_query);
 $point = mysqli_fetch_assoc($point_row);
 $point_total = $point['p_pointTotal'];
@@ -86,7 +87,7 @@ if (isset($_POST['delete'])) {
             <button id="LogoutBtn"><i class="bi bi-check2-circle"></i> Log Out</button>
         </div>
     </div>
-    <section class="vh-100" style="background-color: #f4f5f7;">
+    <section class="vh-100">
         <div class="container py-5 h-100">
             <?php if (!empty($_SESSION['message'])) : ?>
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">

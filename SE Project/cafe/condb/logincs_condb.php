@@ -13,7 +13,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($result);
     if($result->num_rows == 1){
+        $customerID = $row['cus_customerID']; // ใช้ $row แทน $result
+        $_SESSION['cus_customerID'] = $customerID;
         $_SESSION['cus_login'] = $username;
+
         // ในกรณีที่มีผู้ใช้งาน ให้ทำการเปลี่ยนเส้นทางไปยังหน้าหลักหรือหน้าอื่น ๆ ตามที่ต้องการ
         echo "เข้าสู่ระบบสำเร็จ";
         header('Location: ../Userphp/Userinter.php');

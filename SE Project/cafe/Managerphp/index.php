@@ -21,6 +21,16 @@ $dess_row = mysqli_num_rows($dess_query);
 
 $fruit_query = mysqli_query($conn, "SELECT * FROM fruit_menu");
 $fruit_row = mysqli_num_rows($fruit_query);
+
+if (isset($_SESSION['manager_branch'])) {
+    // แสดงชื่อสาขาที่ Manager นั้นอยู่
+    $branch =  $_SESSION['manager_branch'];
+} else {
+    $branch = "ไม่พบข้อมูลของสาขาที่ Manager อยู่";
+}
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -40,10 +50,14 @@ $fruit_row = mysqli_num_rows($fruit_query);
         <div class="logo-container">
             <a href="#"><img src="../image/coffee-cup.png" class="logo" /></a>
             <h2>P E R T</h2>
+            
         </div>
+        
         <div class="links">
+            <a href="#"><?php echo "สาขา : " . $branch ?></a>
             <a href="#">Menu</a>
             <a href="../Dashboard/index.php">Dashboard</a>
+            <a href="../DashboardChartJs/index.php">DashboardChartJs</a>
             <button id="LogoutBtn"><i class="bi bi-check2-circle"></i> Log Out</button>
         </div>
     </div>

@@ -103,30 +103,206 @@ foreach ($age_array as $age) {
 }
 $age_values = array_values($age_count);
 
-$water_hit_query = mysqli_query($conn, "SELECT ord_productName, COUNT(*) AS total_count 
+$water_hit_query = mysqli_query($conn, "SELECT ord_productName, SUM(ord_quantity) AS total_quantity 
                                          FROM order_detail 
                                          WHERE ord_productType IN ('coffee', 'milk', 'tea')
                                          GROUP BY ord_productName 
-                                         ORDER BY total_count DESC 
+                                         ORDER BY total_quantity DESC 
                                          LIMIT 4");
 
 $top_product_names = array(); // อาเรย์สำหรับเก็บชื่อสินค้า
-$top_product_counts = array(); // อาเรย์สำหรับเก็บจำนวนของสินค้า
+$top_product_quantities = array(); // อาเรย์สำหรับเก็บจำนวนของสินค้า
 
 while ($row = mysqli_fetch_assoc($water_hit_query)) {
     $product_name = $row['ord_productName'];
-    $product_count = $row['total_count'];
+    $product_quantity = $row['total_quantity'];
     $top_product_names[] = $product_name; // เพิ่มชื่อสินค้าลงในอาเรย์
-    $top_product_counts[] = $product_count; // เพิ่มจำนวนของสินค้าลงในอาเรย์
+    $top_product_quantities[] = $product_quantity; // เพิ่มจำนวนของสินค้าลงในอาเรย์
 }
+
+$dessert_hit_query = mysqli_query($conn, "SELECT ord_productName, SUM(ord_quantity) AS total_quantity 
+                                          FROM order_detail 
+                                          WHERE ord_productType = 'dessert' 
+                                          GROUP BY ord_productName 
+                                          ORDER BY total_quantity DESC 
+                                          LIMIT 3");
+
+$top_dessert_names = array();
+$top_dessert_quantities = array();
+while ($row = mysqli_fetch_assoc($dessert_hit_query)) {
+    $top_dessert_names[] = $row['ord_productName'];
+    $top_dessert_quantities[] = $row['total_quantity'];
+}
+
+$fruit_hit_query = mysqli_query($conn, "SELECT ord_productName, SUM(ord_quantity) AS total_quantity 
+                                          FROM order_detail 
+                                          WHERE ord_productType = 'fruit' 
+                                          GROUP BY ord_productName 
+                                          ORDER BY total_quantity DESC 
+                                          LIMIT 3");
+
+$top_fruit_names = array();
+$top_fruit_quantities = array();
+while ($row = mysqli_fetch_assoc($fruit_hit_query)) {
+    $top_fruit_names[] = $row['ord_productName'];
+    $top_fruit_quantities[] = $row['total_quantity'];
+}
+
+// สร้างอาเรย์เริ่มต้น
+$weekly_totals = array_fill(0, 7, 0);
+
+// ทำการคิวรีข้อมูลจากฐานข้อมูล
+$day_query = "SELECT DAYOFWEEK(ord_orderDate) AS day_of_week, SUM(ord_total) AS total_price
+          FROM order_main 
+          WHERE YEAR(ord_orderDate) = YEAR(CURDATE())
+          AND WEEK(ord_orderDate) = WEEK(CURDATE())
+          GROUP BY DAYOFWEEK(ord_orderDate)";
+
+$result = mysqli_query($conn, $day_query);
+
+if ($result) {
+    // เก็บผลรวมลงในอาเรย์
+    while ($row = mysqli_fetch_assoc($result)) {
+        $day_of_week = $row['day_of_week'];
+        $total_price = $row['total_price'];
+
+        // เนื่องจาก DAYOFWEEK() จะคืนค่าเริ่มจาก 1 (อาทิตย์) ถึง 7 (เสาร์)
+        // เราจะลดค่า day_of_week ลง 1 เพื่อให้สอดคล้องกับ index ของอาเรย์ที่เริ่มต้นที่ 0
+        $weekly_totals[$day_of_week - 1] = $total_price;
+    }
+} else {
+    echo "Error: " . mysqli_error($conn);
+}
+
+// 1. กำหนดวันที่ปัจจุบัน
+$currentDate = date('Y-m-d');
+
+// 2. สร้างอาร์เรย์เพื่อเก็บผลรวมของ ord_total ในแต่ละชั่วโมงของวันที่ปัจจุบัน
+$hourlyTotal = array();
+
+// 3. สร้างคำสั่ง SQL เพื่อเลือกข้อมูลเวลาและ ord_total จากฐานข้อมูล
+$hour_query = mysqli_query($conn, "SELECT ord_orderDate, ord_total FROM order_main");
+
+// 4. ตรวจสอบว่ามีข้อมูลหรือไม่ก่อนที่จะดึงข้อมูล
+if (mysqli_num_rows($hour_query) > 0) {
+    // วนลูปผลลัพธ์ที่ได้จากคำสั่ง SQL เพื่อดึงข้อมูลเวลาและ ord_total และคำนวณผลรวมของ ord_total ในแต่ละชั่วโมงของวันที่ปัจจุบัน
+    while ($row = mysqli_fetch_assoc($hour_query)) {
+        // แปลง timestamp เป็นชั่วโมงเพื่อใช้เป็นคีย์ในอาร์เรย์
+        $hour = date('Y-m-d H:00:00', strtotime($row['ord_orderDate']));
+
+        // ตรวจสอบว่าข้อมูลอยู่ในวันที่ปัจจุบันหรือไม่
+        if (substr($hour, 0, 10) === $currentDate) {
+            // เพิ่ม ord_total เข้าไปในผลรวมของ ord_total ในชั่วโมงนั้นๆ
+            if (isset($hourlyTotal[$hour])) {
+                $hourlyTotal[$hour] += $row['ord_total'];
+            } else {
+                $hourlyTotal[$hour] = $row['ord_total'];
+            }
+        }
+    }
+} else {
+    echo "ไม่พบข้อมูลเวลา";
+}
+
+$male_age_query = mysqli_query($conn, "SELECT cus_birthday FROM customer WHERE cus_gender = 'Male'");
+
+// ตรวจสอบว่ามีผลลัพธ์ที่ได้หรือไม่
+if (mysqli_num_rows($male_age_query) > 0) {
+    // เก็บข้อมูลอายุไว้ใน array
+    $age_array1 = array();
+
+    // วนลูปผลลัพธ์ที่ได้
+    while ($row = mysqli_fetch_assoc($male_age_query)) {
+        // ดึงวันเกิดแต่ละคน
+        $birthday = $row['cus_birthday'];
+
+        // คำนวณอายุจากวันเกิด
+        $birth_date = new DateTime($birthday);
+        $current_date = new DateTime();
+        $age = $current_date->diff($birth_date)->y; // ดึงอายุเป็นปี
+
+        // เก็บอายุลงใน array
+        $age_array1[] = $age;
+    }
+} else {
+    echo "ไม่พบข้อมูลวันเกิด";
+}
+$age_count1 = array(
+    '12-18' => 0,
+    '19-29' => 0,
+    '30-40' => 0
+);
+
+// นับจำนวนคนในแต่ละช่วงอายุ
+foreach ($age_array1 as $age) {
+    if ($age >= 12 && $age <= 18) {
+        $age_count1['12-18']++;
+    } elseif ($age >= 19 && $age <= 29) {
+        $age_count1['19-29']++;
+    } elseif ($age >= 30 && $age <= 40) {
+        $age_count1['30-40']++;
+    }
+}
+
+$age_values1 = array_values($age_count1);
+
+$female_age_query = mysqli_query($conn, "SELECT cus_birthday FROM customer WHERE cus_gender = 'Female'");
+
+// ตรวจสอบว่ามีผลลัพธ์ที่ได้หรือไม่
+if (mysqli_num_rows($female_age_query) > 0) {
+    // เก็บข้อมูลอายุไว้ใน array
+    $age_array2 = array();
+
+    // วนลูปผลลัพธ์ที่ได้
+    while ($row = mysqli_fetch_assoc($female_age_query)) {
+        // ดึงวันเกิดแต่ละคน
+        $birthday = $row['cus_birthday'];
+
+        // คำนวณอายุจากวันเกิด
+        $birth_date = new DateTime($birthday);
+        $current_date = new DateTime();
+        $age = $current_date->diff($birth_date)->y; // ดึงอายุเป็นปี
+
+        // เก็บอายุลงใน array
+        $age_array2[] = $age;
+    }
+} else {
+    echo "ไม่พบข้อมูลวันเกิด";
+}
+$age_count2 = array(
+    '12-18' => 0,
+    '19-29' => 0,
+    '30-40' => 0
+);
+
+// นับจำนวนคนในแต่ละช่วงอายุ
+foreach ($age_array2 as $age) {
+    if ($age >= 12 && $age <= 18) {
+        $age_count2['12-18']++;
+    } elseif ($age >= 19 && $age <= 29) {
+        $age_count2['19-29']++;
+    } elseif ($age >= 30 && $age <= 40) {
+        $age_count2['30-40']++;
+    }
+}
+
+$age_values2 = array_values($age_count2);
 
 // แปลงข้อมูลเป็นรูปแบบ JSON
 $data_json = json_encode($data);
+$hour_key_jason = json_encode(array_keys($hourlyTotal));
+$hour_value_jason = json_encode(array_values($hourlyTotal));
 $water_jason = json_encode($water);
 $age_jason = json_encode($age_values);
+$male_age_jason = json_encode($age_values1);
+$female_age_jason = json_encode($age_values2);
 $water_top_name_jason = json_encode($top_product_names);
-$water_top_count_jason = json_encode($top_product_counts);
-
+$water_top_count_jason = json_encode($top_product_quantities);
+$dessert_top_name_jason = json_encode($top_dessert_names);
+$dessert_top_count_jason = json_encode($top_dessert_quantities);
+$fruit_top_name_jason = json_encode($top_fruit_names);
+$fruit_top_count_jason = json_encode($top_fruit_quantities);
+$day_jason = json_encode($weekly_totals);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -164,7 +340,29 @@ $water_top_count_jason = json_encode($top_product_counts);
         var cahrtName = <?php echo $water_top_name_jason ?>;
         var cahrtCount = <?php echo $water_top_count_jason ?>;
     </script>
-
+    <script>
+        // ใช้ข้อมูลจาก PHP แทนที่ข้อมูลจาก JavaScript
+        var cahrtName1 = <?php echo $dessert_top_name_jason ?>;
+        var cahrtCount1 = <?php echo $dessert_top_count_jason ?>;
+    </script>
+    <script>
+        // ใช้ข้อมูลจาก PHP แทนที่ข้อมูลจาก JavaScript
+        var cahrtName2 = <?php echo $fruit_top_name_jason ?>;
+        var cahrtCount2 = <?php echo $fruit_top_count_jason ?>;
+    </script>
+    <script>
+        var chartData1 = <?php echo $day_jason; ?>;
+    </script>
+    <script>
+        var chartName2 = <?php echo $hour_key_jason; ?>;
+        var chartData2 = <?php echo $hour_value_jason; ?>;
+    </script>
+    <script>
+        var cahrtAge1 = <?php echo $male_age_jason; ?>;
+    </script>
+    <script>
+        var cahrtAge2 = <?php echo $female_age_jason; ?>;
+    </script>
 </head>
 
 <body id="page-top">
@@ -193,25 +391,33 @@ $water_top_count_jason = json_encode($top_product_counts);
                     <span>Dashboard</span></a>
             </li>
 
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" href="../Managerphp/index.php">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Menu</span></a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider">
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                Interface
+                Human Details
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-cog"></i>
-                    <span>Components</span>
+                    <span>Employee</span>
                 </a>
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Components:</h6>
-                        <a class="collapse-item" href="buttons.html">Buttons</a>
-                        <a class="collapse-item" href="cards.html">Cards</a>
+                        <h6 class="collapse-header">Employee Detail :</h6>
+                        <a class="collapse-item" href="tables.php">All</a>
+                        <a class="collapse-item" href="table2.php">Cashier</a>
+                        <a class="collapse-item" href="table3.php">Barista</a>
                     </div>
                 </div>
             </li>
@@ -220,15 +426,13 @@ $water_top_count_jason = json_encode($top_product_counts);
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
                     <i class="fas fa-fw fa-wrench"></i>
-                    <span>Utilities</span>
+                    <span>Customer</span>
                 </a>
                 <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Utilities:</h6>
-                        <a class="collapse-item" href="utilities-color.html">Colors</a>
-                        <a class="collapse-item" href="utilities-border.html">Borders</a>
-                        <a class="collapse-item" href="utilities-animation.html">Animations</a>
-                        <a class="collapse-item" href="utilities-other.html">Other</a>
+                        <h6 class="collapse-header">Custom Detail :</h6>
+                        <a class="collapse-item" href="table4.php">Customer</a>
+                        <a class="collapse-item" href="table5.php">Point</a>
                     </div>
                 </div>
             </li>
@@ -245,34 +449,29 @@ $water_top_count_jason = json_encode($top_product_counts);
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-folder"></i>
-                    <span>Pages</span>
+                    <span>Menu List</span>
                 </a>
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Login Screens:</h6>
-                        <a class="collapse-item" href="login.html">Login</a>
-                        <a class="collapse-item" href="register.html">Register</a>
-                        <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
-                        <div class="collapse-divider"></div>
-                        <h6 class="collapse-header">Other Pages:</h6>
-                        <a class="collapse-item" href="404.html">404 Page</a>
-                        <a class="collapse-item" href="blank.html">Blank Page</a>
+                        <a class="collapse-item" href="table6.php">Water</a>
+                        <a class="collapse-item" href="table7.php">Dessert</a>
+                        <a class="collapse-item" href="table8.php">Fruit</a>
                     </div>
                 </div>
             </li>
 
             <!-- Nav Item - Charts -->
             <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+                <a class="nav-link" href="table9.php">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Charts</span></a>
+                    <span>Order</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="table10.php">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span></a>
+                    <span>Feedback</span></a>
             </li>
 
             <!-- Divider -->
@@ -440,16 +639,57 @@ $water_top_count_jason = json_encode($top_product_counts);
                         <div class="col-xl-8 col-lg-7">
                             <div class="card shadow mb-4">
                                 <!-- Card Header - Dropdown -->
-                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Order Overview</h6>
-                                </div>
+                                <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                    <a class="navbar-brand" href="#">Earnings Overview</a>
+                                    <ul class="navbar-nav ml-auto">
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Dropdown
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="#" onclick="showChart('Month')">Month</a>
+                                                <a class="dropdown-item" href="#" onclick="showChart('Day')">Day</a>
+                                                <a class="dropdown-item" href="#" onclick="showChart('Hour')">Hour</a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </nav>
                                 <!-- Card Body -->
                                 <div class="card-body">
                                     <div class="chart-area">
                                         <input type="hidden" id="phpData" value="<?php echo $data; ?>">
+                                        <input type="hidden" id="phpData9" value="<?php echo $weekly_totals; ?>">
+                                        <input type="hidden" id="phpData10" value="<?php echo array_keys($hourlyTotal); ?>">
+                                        <input type="hidden" id="phpData11" value="<?php echo array_values($hourlyTotal); ?>">
                                         <canvas id="OrderOverviewChart"></canvas>
+                                        <canvas id="OrderOverviewChart1"></canvas>
+                                        <canvas id="OrderOverviewChart2"></canvas>
                                     </div>
                                 </div>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        showChart('Month');
+                                    });
+
+                                    function showChart(interval) {
+                                        // เช็คว่าถ้าเป็น 'Day' ให้แสดง canvas ที่เกี่ยวข้อง และซ่อน canvas อื่น ๆ
+                                        if (interval === 'Day') {
+                                            document.getElementById('OrderOverviewChart1').style.display = 'block';
+                                            document.getElementById('OrderOverviewChart').style.display = 'none';
+                                            document.getElementById('OrderOverviewChart2').style.display = 'none';
+                                        } else if (interval === 'Hour') {
+                                            document.getElementById('OrderOverviewChart1').style.display = 'none';
+                                            document.getElementById('OrderOverviewChart').style.display = 'none';
+                                            document.getElementById('OrderOverviewChart2').style.display = 'block';
+                                        } else {
+                                            // ในกรณีอื่น ๆ แสดง canvas ที่ไม่ใช่ 'Day' และซ่อน canvas ที่เป็น 'Day'
+                                            document.getElementById('OrderOverviewChart1').style.display = 'none';
+                                            document.getElementById('OrderOverviewChart').style.display = 'block';
+                                            document.getElementById('OrderOverviewChart2').style.display = 'none';
+                                        }
+                                    }
+                                </script>
                             </div>
                         </div>
 
@@ -487,14 +727,30 @@ $water_top_count_jason = json_encode($top_product_counts);
                         <div class="col-xl-4 col-lg-5">
                             <div class="card shadow mb-4">
                                 <!-- Card Header - Dropdown -->
-                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Age Range</h6>
-                                </div>
+                                <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                    <a class="navbar-brand" href="#">Age Range</a>
+                                    <ul class="navbar-nav ml-auto">
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Gender
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="#" onclick="showChart1('All')">All</a>
+                                                <a class="dropdown-item" href="#" onclick="showChart1('Male')">Male</a>
+                                                <a class="dropdown-item" href="#" onclick="showChart1('Female')">Female</a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </nav>
                                 <!-- Card Body -->
                                 <div class="card-body">
                                     <div class="chart-pie pt-4 pb-2">
                                         <input type="hidden" id="phpData2" value="<?php echo $age_values; ?>">
+                                        <input type="hidden" id="phpData12" value="<?php echo $age_values1; ?>">
+                                        <input type="hidden" id="phpData13" value="<?php echo $age_values2; ?>">
                                         <canvas id="Age_range"></canvas>
+                                        <canvas id="Age_range1"></canvas>
+                                        <canvas id="Age_range2"></canvas>
                                     </div>
                                     <div class="mt-4 text-center small">
                                         <span class="mr-2">
@@ -507,15 +763,55 @@ $water_top_count_jason = json_encode($top_product_counts);
                                             <i class="fas fa-circle text-info"></i> 30 - 40
                                         </span>
                                     </div>
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            showChart1('All');
+                                        });
+
+                                        function showChart1(gender) {
+                                            // เช็คว่าถ้าเป็น 'Day' ให้แสดง canvas ที่เกี่ยวข้อง และซ่อน canvas อื่น ๆ
+                                            if (gender === 'Male') {
+                                                document.getElementById('Age_range1').style.display = 'block';
+                                                document.getElementById('Age_range').style.display = 'none';
+                                                document.getElementById('Age_range2').style.display = 'none';
+                                            } else if (gender === 'Female') {
+                                                document.getElementById('Age_range1').style.display = 'none';
+                                                document.getElementById('Age_range').style.display = 'none';
+                                                document.getElementById('Age_range2').style.display = 'block';
+                                            } else {
+                                                // ในกรณีอื่น ๆ แสดง canvas ที่ไม่ใช่ 'Day' และซ่อน canvas ที่เป็น 'Day'
+                                                document.getElementById('Age_range1').style.display = 'none';
+                                                document.getElementById('Age_range').style.display = 'block';
+                                                document.getElementById('Age_range2').style.display = 'none';
+                                            }
+                                        }
+                                    </script>
                                 </div>
                             </div>
                         </div>
                         <!-- Content Column -->
                         <!-- Project Card Example -->
                         <div class="card shadow mb-4 col-xl-8 col-lg-7">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Dessert</h6>
-                            </div>
+                            <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                <a class="navbar-brand" href="#">Stock</a>
+                                <ul class="navbar-nav ml-auto">
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Choose Category
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
+                                            <a class="dropdown-item" href="#" onclick="filterCategory('Dessert')">Dessert</a>
+                                            <a class="dropdown-item" href="#" onclick="filterCategory('Fruit')">Fruit</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#" onclick="filterCategory1('0-20')">0% - 20%</a>
+                                            <a class="dropdown-item" href="#" onclick="filterCategory1('21-40')">21% - 40%</a>
+                                            <a class="dropdown-item" href="#" onclick="filterCategory1('41-60')">41% - 60%</a>
+                                            <a class="dropdown-item" href="#" onclick="filterCategory1('61-80')">61% - 80%</a>
+                                            <a class="dropdown-item" href="#" onclick="filterCategory1('81-100')">81% - 100%</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </nav>
                             <style>
                                 .scrollable-menu {
                                     max-height: 300px;
@@ -528,6 +824,8 @@ $water_top_count_jason = json_encode($top_product_counts);
                                 <?php
                                 $dess_query = mysqli_query($conn, "SELECT * FROM dessert_menu");
                                 $dess_row = mysqli_num_rows($dess_query);
+                                $fruit_query = mysqli_query($conn, "SELECT * FROM fruit_menu");
+                                $fruit_row = mysqli_num_rows($fruit_query);
 
                                 $quantities = array();
                                 while ($row = mysqli_fetch_assoc($dess_query)) {
@@ -539,26 +837,109 @@ $water_top_count_jason = json_encode($top_product_counts);
                                         'percentage' => $percentage
                                     );
                                 }
-                                // วนลูปผ่านอาเรย์เพื่อแสดงผล
+                                $quantities1 = array();
+                                while ($row1 = mysqli_fetch_assoc($fruit_query)) {
+                                    // คำนวณเป็นเปอร์เซ็นต์เมื่อเทียบกับ 20
+                                    $percentage1 = ($row1['fruit_quantity'] / 20) * 100;
+                                    // เพิ่มข้อมูลลงในอาเรย์พร้อมกับชื่อเมนู
+                                    $quantities1[] = array(
+                                        'menuName' => $row1['fruit_menuName'],
+                                        'percentage' => $percentage1
+                                    );
+                                }
+                                // สำหรับ Dessert
+                                // สำหรับ Dessert
                                 foreach ($quantities as $key => $data) {
-                                    echo '<h4 class="small font-weight-bold">' . $data['menuName'] . '<span class="float-right">' . $data['percentage'] . '%</span></h4>';
-                                    echo '<div class="progress mb-4">';
+                                    echo '<h4 class="small font-weight-bold" data-category="Dessert">' . $data['menuName'] . '<span class="float-right">' . $data['percentage'] . '%</span></h4>';
+                                    echo '<div class="progress mb-4" data-category="Dessert" data-name="' . $data['menuName'] . '">';
                                     $percentage = $data['percentage'];
                                     if ($percentage >= 0 && $percentage <= 20) {
-                                        echo '<div class="progress-bar bg-danger" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100"></div>';
+                                        echo '<div class="progress-bar bg-danger" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100"  data-category="0-20"></div>';
                                     } elseif ($percentage > 20 && $percentage <= 40) {
-                                        echo '<div class="progress-bar bg-warning" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100"></div>';
+                                        echo '<div class="progress-bar bg-warning" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100"  data-category="21-40"></div>';
                                     } elseif ($percentage > 40 && $percentage <= 60) {
-                                        echo '<div class="progress-bar" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100"></div>';
+                                        echo '<div class="progress-bar" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100" data-category="41-60"></div>';
                                     } elseif ($percentage > 60 && $percentage <= 80) {
-                                        echo '<div class="progress-bar bg-info" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100"></div>';
+                                        echo '<div class="progress-bar bg-info" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100" data-category="61-80"></div>';
                                     } elseif ($percentage > 80 && $percentage <= 100) {
-                                        echo '<div class="progress-bar bg-success" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100"></div>';
+                                        echo '<div class="progress-bar bg-success" role="progressbar" style="width: ' . $percentage . '%" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100" data-category="81-100"></div>';
                                     }
                                     echo '</div>';
+                                    // เรียกใช้งาน showPercentage
+                                    echo '<script>showPercentage("Dessert", ' . $data['percentage'] . ');</script>';
+                                }
+
+                                // สำหรับ Fruit
+                                foreach ($quantities1 as $key => $data1) {
+                                    echo '<h4 class="small font-weight-bold" data-category="Fruit">' . $data1['menuName'] . '<span class="float-right">' . $data1['percentage'] . '%</span></h4>';
+                                    echo '<div class="progress mb-4" data-category="Fruit" data-name="' . $data1['menuName'] . '">';
+                                    $percentage1 = $data1['percentage'];
+                                    if ($percentage1 >= 0 && $percentage1 <= 20) {
+                                        echo '<div class="progress-bar bg-danger" role="progressbar" style="width: ' . $percentage1 . '%" aria-valuenow="' . $percentage1 . '" aria-valuemin="0" aria-valuemax="100" data-category="0-20"></div>';
+                                    } elseif ($percentage1 > 20 && $percentage1 <= 40) {
+                                        echo '<div class="progress-bar bg-warning" role="progressbar" style="width: ' . $percentage1 . '%" aria-valuenow="' . $percentage1 . '" aria-valuemin="0" aria-valuemax="100" data-category="21-40"></div>';
+                                    } elseif ($percentage1 > 40 && $percentage1 <= 60) {
+                                        echo '<div class="progress-bar" role="progressbar" style="width: ' . $percentage1 . '%" aria-valuenow="' . $percentage1 . '" aria-valuemin="0" aria-valuemax="100" data-category="41-60"></div>';
+                                    } elseif ($percentage1 > 60 && $percentage1 <= 80) {
+                                        echo '<div class="progress-bar bg-info" role="progressbar" style="width: ' . $percentage1 . '%" aria-valuenow="' . $percentage1 . '" aria-valuemin="0" aria-valuemax="100"  data-category="61-80"></div>';
+                                    } elseif ($percentage1 > 80 && $percentage1 <= 100) {
+                                        echo '<div class="progress-bar bg-success" role="progressbar" style="width: ' . $percentage1 . '%" aria-valuenow="' . $percentage1 . '" aria-valuemin="0" aria-valuemax="100"  data-category="81-100"></div>';
+                                    }
+                                    echo '</div>';
+                                    // เรียกใช้งาน showPercentage
+                                    echo '<script>showPercentage("Fruit", ' . $data1['percentage'] . ');</script>';
                                 }
                                 ?>
                             </div>
+
+                            <script>
+                                function filterCategory(category) {
+                                    // ซ่อนทั้งหมดก่อน
+                                    document.querySelectorAll('.card-body .progress').forEach(function(item) {
+                                        item.style.display = 'none';
+                                    });
+
+                                    // แสดงเฉพาะข้อมูลของหมวดหมู่ที่เลือก
+                                    document.querySelectorAll(`.card-body .progress[data-category="${category}"]`).forEach(function(item) {
+                                        item.style.display = '';
+                                    });
+
+                                    // ซ่อน h4 ของหมวดหมู่อื่น
+                                    document.querySelectorAll('.card-body h4').forEach(function(item) {
+                                        if (item.getAttribute('data-category') !== category) {
+                                            item.style.display = 'none';
+                                        } else {
+                                            item.style.display = '';
+                                        }
+                                    });
+                                }
+                            </script>
+                            <script>
+                                function filterCategory1(category1) {
+                                    // ซ่อนทั้งหมดก่อน
+                                    document.querySelectorAll('.card-body .progress').forEach(function(item) {
+                                        item.style.display = 'none';
+                                    });
+
+                                    // แสดงเฉพาะข้อมูลของหมวดหมู่ที่เลือก
+                                    document.querySelectorAll(`.card-body .progress[data-category="${category1}"]`).forEach(function(item) {
+                                        item.style.display = '';
+                                    });
+
+                                    // แสดงข้อมูลของ Dessert และ Fruit ที่เปอร์เซ็นต์ที่เลือก
+                                    document.querySelectorAll('.card-body .progress').forEach(function(item) {
+                                        var percentage = parseInt(item.querySelector('.progress-bar').getAttribute('aria-valuenow'));
+                                        var itemName = item.parentElement.querySelector('h4').textContent;
+                                        if ((category1 === '0-20' && percentage >= 0 && percentage <= 20) ||
+                                            (category1 === '21-40' && percentage > 20 && percentage <= 40) ||
+                                            (category1 === '41-60' && percentage > 40 && percentage <= 60) ||
+                                            (category1 === '61-80' && percentage > 60 && percentage <= 80) ||
+                                            (category1 === '81-100' && percentage > 80 && percentage <= 100)) {
+                                            item.style.display = '';
+                                        }
+                                    });
+                                }
+                            </script>
                         </div>
                     </div>
 
@@ -574,8 +955,22 @@ $water_top_count_jason = json_encode($top_product_counts);
                                 <div class="card-body">
                                     <div class="chart-pie pt-4">
                                         <input type="hidden" id="phpData3" value="<?php echo $top_product_names; ?>">
-                                        <input type="hidden" id="phpData3" value="<?php echo $top_product_counts; ?>">
+                                        <input type="hidden" id="phpData4" value="<?php echo $top_product_counts; ?>">
                                         <canvas id="waterTopChart"></canvas>
+                                    </div>
+                                    <div class="mt-4 text-center small">
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-primary"></i> <?php echo $top_product_names[0] ?>
+                                        </span>
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-success"></i> <?php echo $top_product_names[1] ?>
+                                        </span>
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-info"></i> <?php echo $top_product_names[2] ?>
+                                        </span>
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-warning"></i> <?php echo $top_product_names[3] ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -590,9 +985,21 @@ $water_top_count_jason = json_encode($top_product_counts);
                                 <!-- Card Body -->
                                 <div class="card-body">
                                     <div class="chart-pie pt-4">
-                                        <canvas id="myPieChart"></canvas>
+                                        <input type="hidden" id="phpData5" value="<?php echo $dessert_top_name_jason; ?>">
+                                        <input type="hidden" id="phpData6" value="<?php echo $dessert_top_count_jason; ?>">
+                                        <canvas id="DessertTopChart"></canvas>
                                     </div>
-
+                                    <div class="mt-4 text-center small">
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-primary"></i> <?php echo $top_dessert_names[0] ?>
+                                        </span>
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-success"></i> <?php echo $top_dessert_names[1] ?>
+                                        </span>
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-info"></i> <?php echo $top_dessert_names[2] ?>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -606,7 +1013,20 @@ $water_top_count_jason = json_encode($top_product_counts);
                                 <!-- Card Body -->
                                 <div class="card-body">
                                     <div class="chart-pie pt-4">
-                                        <canvas id="myPieChart"></canvas>
+                                        <input type="hidden" id="phpData7" value="<?php echo $fruit_top_name_jason; ?>">
+                                        <input type="hidden" id="phpData8" value="<?php echo $fruit_top_count_jason; ?>">
+                                        <canvas id="FruitTopChart"></canvas>
+                                    </div>
+                                    <div class="mt-4 text-center small">
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-primary"></i> <?php echo $top_fruit_names[0] ?>
+                                        </span>
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-success"></i> <?php echo $top_fruit_names[1] ?>
+                                        </span>
+                                        <span class="mr-2">
+                                            <i class="fas fa-circle text-info"></i> <?php echo $top_fruit_names[2] ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -663,11 +1083,16 @@ $water_top_count_jason = json_encode($top_product_counts);
 
     <!-- Page level custom scripts -->
     <script src="js/demo/chart-area-demo.js"></script>
+    <script src="js/demo/chart-area-demo1.js"></script>
+    <script src="js/demo/chart-area-demo2.js"></script>
     <script src="js/demo/chart-pie-demo.js"></script>
     <script src="js/demo/chart-pie-demo-2.js"></script>
     <script src="js/demo/chart-bar-demo-2.js"></script>
     <script src="js/demo/chart-pie-demo-3.js"></script>
-
+    <script src="js/demo/chart-pie-demo-4.js"></script>
+    <script src="js/demo/chart-pie-demo-5.js"></script>
+    <script src="js/demo/chart-pie-demo-6.js"></script>
+    <script src="js/demo/chart-pie-demo-7.js"></script>
 </body>
 
 </html>

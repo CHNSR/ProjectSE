@@ -35,14 +35,26 @@ if (isset($_POST['register'])) {
     // สร้างคำสั่ง SQL เพื่อเพิ่มข้อมูลลงในฐานข้อมูล
     $sql = "INSERT INTO customer (cus_username, cus_password, cus_firstname, cus_lastname, cus_phoneNumber, cus_gender, cus_birthday, cus_email) 
             VALUES ('$username', '$password', '$firstname', '$lastname', '$phone_number', '$gender', '$birthdate', '$email')";
-    $sql1 = "INSERT INTO points (p_customerName) VALUES ('$username')";
+    $result3 = mysqli_query($conn, $sql);
+    //set point in new customer  
+    $sqldatacus = "SELECT cus_customerID FROM customer WHERE cus_email = '$email' ";
+    $result2 = mysqli_query($conn, $sqldatacus);
+    if ($result2) {
+        $dataidcus = mysqli_fetch_assoc($result2);
+        $customerID = $dataidcus['cus_customerID'];
+        $sql1 = "INSERT INTO points (p_customerID) VALUES ('$customerID')";
+        mysqli_query($conn, $sql1);
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
+
     // ส่งคำสั่ง SQL ไปยังฐานข้อมูล
-    if (mysqli_query($conn, $sql)) {
-        if (mysqli_query($conn, $sql1)) {
-            // หากสำเร็จให้เปลี่ยนเส้นทางไปที่หน้า index.php
-            header("Location: ../index.php");
-            exit();
-        }
+    if ($result3) {
+        echo 'Saccess register';
+        // หากสำเร็จให้เปลี่ยนเส้นทางไปที่หน้า index.php
+        header("Location: ../index.php");
+        exit();
+        
     } else {
         // หากเกิดข้อผิดพลาดในการเพิ่มข้อมูล
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);

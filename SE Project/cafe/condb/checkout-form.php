@@ -4,12 +4,29 @@ date_default_timezone_set('Asia/Bangkok');
 include 'database.php';
 
 $now = date('Y-m-d H:i:s');
-$username = mysqli_real_escape_string($conn, $_POST['username']);
-$queryID = mysqli_query($conn, "SELECT * FROM customer WHERE cus_username = '{$username}'");
+$employeeID = $_SESSION['cashier_login'];
+//check username in session if session is set => $username else : $username = "Not a member"
+$username = isset($_POST['username']) && !empty($_POST['username']) ? mysqli_real_escape_string($conn, $_POST['username']) : 'Not a member';
+if($username == 'Not a member'){
+    // if $username isn't set. To save in order main at attribuilt ord_orderDate, ord_total and ord_customerID it's null 
+    $query = mysqli_query($conn, "INSERT INTO order_main(ord_orderDate, ord_total, ord_employeeID) 
+    VALUES ('{$now}', '{$_POST['grand_total']}', '{$employeeID}')");
 
-$customerID = mysqli_fetch_assoc($queryID);
-$query = mysqli_query($conn, "INSERT INTO order_main(ord_orderDate, ord_customerID, ord_total) 
-VALUES ('{$now}','{$customerID['cus_customerID']}', '{$_POST['grand_total']}')") or die('query failed');
+
+
+}else{
+
+    $queryID = mysqli_query($conn, "SELECT * FROM customer WHERE cus_username = '{$username}'");
+    $customerID = mysqli_fetch_assoc($queryID);
+
+    $query = mysqli_query($conn, "INSERT INTO order_main(ord_orderDate, ord_customerID, ord_total, ord_employeeID) 
+    VALUES ('{$now}','{$customerID['cus_customerID']}', '{$_POST['grand_total']}', '{$employeeID}')");
+
+
+}
+
+
+
 
 if ($query) {
     $last_id = mysqli_insert_id($conn);
@@ -38,11 +55,16 @@ if ($query) {
             $fruit_quantity = $fruit['fruit_quantity'] - $quantity;
             $fruit_updatr = mysqli_query($conn, "UPDATE fruit_menu SET fruit_quantity = $fruit_quantity WHERE fruit_menuName = '{$product_name}'") or die('query failed');
         }
-        $point_query = mysqli_query($conn, "SELECT * FROM points WHERE p_customerName = '{$username}'") or die('query failed');
-        $point = mysqli_fetch_assoc($point_query);
-        $point_up = $_POST['grand_total'] / 2;
-        $point_total = $point['p_pointTotal'] + $point_up;
-        $point_update = mysqli_query($conn, "UPDATE points SET p_pointTotal = '{$point_total}' WHERE p_customerName = '{$username}'");
+        $point_query = mysqli_query($conn, "SELECT * FROM points WHERE p_customerID = '{$username}'") ;
+        if(mysqli_num_rows($point_query) >= 1 ){
+            $point = mysqli_fetch_assoc($point_query);
+            $point_up = $_POST['grand_total'] / 2;
+            $point_total = $point['p_pointTotal'] + $point_up;
+            $point_update = mysqli_query($conn, "UPDATE points SET p_pointTotal = '{$point_total}' WHERE p_customerName = '{$username}'");
+        }else{
+            
+        }
+        
     }
     unset($_SESSION['cart']);
     $_SESSION['message'] = 'Checkout Order successfully!!!';

@@ -1,0 +1,224 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family:'poppins',sans-serif ;
+}
+
+body {
+    background-color: #a3e9a4;
+    color: black;
+    font-family: Arial, sans-serif;
+}
+
+.user{
+    position: relative;
+    width: 40px;
+    height: 40px;
+
+}
+
+.user img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+.logo h2 {
+    color: #795548;
+}
+
+.search{
+    position: relative;
+    width: 60%;
+    justify-self: center;
+}
+
+.search input{
+    width: 100%;
+    height: 35px;
+    padding: 0 30px;
+    font-size: 16px;
+    outline: none;
+    border: none;
+    border-radius: 8px;
+    background: #e4d9d5;
+}
+
+.search i{
+    position: absolute;
+    right: 15px;
+    top: 12px;
+    cursor: pointer;
+}
+.topbar {
+    position: fixed;
+    background-color: antiquewhite;
+    box-shadow: 0 4px 8px rgb(115, 61, 168, 0.08);
+    width: 100%;
+    height: 60px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 2fr 10fr 0.4fr 1fr;
+    align-items: center;
+    z-index: 1;
+}
+/* sidebar starts here*/
+.sidebar {
+    position: fixed;
+    top: 60px;
+    width: 260px;
+    height: 100vh;
+    background: antiquewhite;
+    overflow: hidden;
+}
+
+.sidebar ul{
+    margin-top: 20px;
+}
+
+.sidebar ul li{
+    width: 100%;
+    list-style: none;
+    margin-bottom: 10px;
+}
+.sidebar ul li a{
+    width: 100%;
+    text-decoration: none;
+    color: black;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    
+}
+
+.sidebar ul li a img{
+    width: 45px;
+    height: 45px;
+    margin: 30px;
+    
+    
+}
+
+.sidebar ul li a div{
+    
+    font-family: Arial, sans-serif;
+    
+}
+.main {
+    position: absolute;
+    top: 60px;
+    width: calc(100% - 260px);
+    left: 260px;
+    min-height: calc(100vh - 60px);
+    
+}
+.icon-box img {
+    width: 50px; /* กำหนดความกว้างของไอคอนเป็น 50px */
+    height: 50px; /* กำหนดความสูงของไอคอนเป็น 50px */
+}
+.cards{
+    width: 100%;
+    padding: 35px 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+}
+.cards .card{
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #e4d9d5;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px 0 black;
+}
+.number {
+    font-size: 35px;
+    font-weight: 500;
+    color: #795548;
+}
+
+.card-name {
+    font-size: 25px;
+
+}
+
+.charts {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-gap: 20px;
+    width: 100%;
+    padding: 20px;
+    padding-top: 0;
+}
+
+.chart {
+    background: #e4d9d5;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 7px 25px rgb(0, 0, 0, 0.08);
+    width: 100%;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px 0 black
+}
+
+#filterForm {
+    color: #f0f0f0; /* กำหนดสีพื้นหลังของฟอร์ม */
+    border: 1px solid #ccc; /* กำหนดสีขอบของฟอร์ม */
+    padding: 10px; /* เพิ่มช่องว่างด้านในของฟอร์ม */
+}
+
+#filterForm p{
+   color: #795548;
+   font-size: 15px;
+   
+}
+
+/* CSS */
+#yearSelect {
+    background-color: #f0f0f0; /* กำหนดสีพื้นหลังของเลือก */
+    color: #795548; /* กำหนดสีข้อความของเลือก */
+    padding: 8px; /* กำหนดขนาดของ padding */
+    font-size: 15px; /* กำหนดขนาดของ font */
+    border: 1px solid #ccc; /* กำหนดเส้นขอบ */
+    border-radius: 4px; /* กำหนดมุมของกรอบ */
+}
+
+/* ปรับสีของตัวเลือกเมื่อถูกเลือก */
+#yearSelect option:checked {
+    background-color: #ffb13c; /* กำหนดสีพื้นหลังของตัวเลือกที่ถูกเลือก */
+    color: #000; /* กำหนดสีข้อความของตัวเลือกที่ถูกเลือก */
+}
+
+#filterFormpie {
+    background-color: #f0f0f0; /* กำหนดสีพื้นหลังของเลือก */
+    color: #795548; /* กำหนดสีข้อความของเลือก */
+    padding: 8px; /* กำหนดขนาดของ padding */
+    font-size: 15px; /* กำหนดขนาดของ font */
+    border: 1px solid #ccc; /* กำหนดเส้นขอบ */
+    border-radius: 4px; /* กำหนดมุมของกรอบ */
+}
+
+#filterFormpiePD {
+    background-color: #f0f0f0; /* กำหนดสีพื้นหลังของเลือก */
+    color: #795548; /* กำหนดสีข้อความของเลือก */
+    padding: 8px; /* กำหนดขนาดของ padding */
+    font-size: 15px; /* กำหนดขนาดของ font */
+    border: 1px solid #ccc; /* กำหนดเส้นขอบ */
+    border-radius: 4px; /* กำหนดมุมของกรอบ */
+}
+
+#filterFormpiePF {
+    background-color: #f0f0f0; /* กำหนดสีพื้นหลังของเลือก */
+    color: #795548; /* กำหนดสีข้อความของเลือก */
+    padding: 8px; /* กำหนดขนาดของ padding */
+    font-size: 15px; /* กำหนดขนาดของ font */
+    border: 1px solid #ccc; /* กำหนดเส้นขอบ */
+    border-radius: 4px; /* กำหนดมุมของกรอบ */
+}
+
+

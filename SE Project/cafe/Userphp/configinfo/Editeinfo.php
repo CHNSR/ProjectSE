@@ -12,7 +12,8 @@ if (!isset($_SESSION['cus_login'])) {
     $sql_cus = "SELECT * FROM customer WHERE cus_username = '$cus_username' ";
     $result = mysqli_query($conn, $sql_cus);
     $row = mysqli_fetch_assoc($result);
-
+    
+    $cus_customerID = $row['cus_customerID'];
     $cus_firstname = $row['cus_firstname'];
     $cus_lastname = $row['cus_lastname'];
     $cus_phone_number = $row['cus_phoneNumber'];
@@ -23,6 +24,10 @@ if (!isset($_SESSION['cus_login'])) {
     
    
 }
+$point_query = "SELECT * FROM points WHERE p_customerID = '$cus_customerID' ";
+$point_row = mysqli_query($conn, $point_query);
+$point = mysqli_fetch_assoc($point_row);
+$point_total = $point['p_pointTotal'];
 
 ?>
 <!DOCTYPE html>
@@ -56,6 +61,7 @@ if (!isset($_SESSION['cus_login'])) {
         </div>
         <div class="links">
             <a href="../Userinter.php">Menu</a>
+            <a href="#"><i class="bi bi-coin"></i> <?php echo $point_total ?> Point</a>
             <a href="../Information.php">Information</a>
             <button id="LogoutBtn"><i class="bi bi-check2-circle"></i> Log Out</button>
         </div>

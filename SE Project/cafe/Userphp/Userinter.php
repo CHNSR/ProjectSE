@@ -22,8 +22,8 @@ $dess_row = mysqli_num_rows($dess_query);
 $fruit_query = mysqli_query($conn, "SELECT * FROM fruit_menu");
 $fruit_row = mysqli_num_rows($fruit_query);
 
-$cus_username = $_SESSION['cus_login'];
-$point_query = "SELECT * FROM points WHERE p_customerName = '$cus_username' ";
+$cus_customerID = $_SESSION['cus_customerID'];
+$point_query = "SELECT * FROM points WHERE p_customerID = '$cus_customerID' ";
 $point_row = mysqli_query($conn, $point_query);
 $point = mysqli_fetch_assoc($point_row);
 $point_total = $point['p_pointTotal'];

@@ -5,10 +5,7 @@
     align-items: center;
 }
 
-.chart-container {
-    width: 50%;
-    margin-top: 20px;
-}
+
 
 #filterForm {
     display: flex;
@@ -173,6 +170,36 @@ body {
     background-color: #ffa000; /* สีพื้นหลังเมื่อนำเมาส์ไปวาง */
     color: black; /* สีตัวอักษรเมื่อนำเมาส์ไปวาง */
 }
+
+.bgchart {
+    display: flex;
+    border: solid 2px #ffa000;
+    background-color: #f1f8e9;
+    width: 700px;
+    height: 325px;
+    
+}
+
+.chart-container {
+    width: 90%;
+    height: 60%;
+}
+
+#filterForm {
+    margin-left: auto;
+}
+.barchart {
+    position: relative; /* หรือใช้ relative ถ้าต้องการให้อยู่ใน flow ปกติของเอกสาร */
+    right: 0; /* จัดให้อยู่ทางขวาสุด */
+    top: 3;
+    display: flex;
+    border: solid 2px #ffa000;
+    background-color: #f1f8e9;
+    width: 700px;
+    height: 325px;
+}
+
+
 
 
 

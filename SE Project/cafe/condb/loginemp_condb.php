@@ -9,7 +9,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     
     // สร้างคำสั่ง SQL เพื่อตรวจสอบข้อมูลในฐานข้อมูล
-    $sql = "SELECT * FROM employee WHERE emp_username='$username' AND emp_password='$password'";
+    $sql = "SELECT employee.*, branch_main.b_name 
+            FROM employee
+            INNER JOIN branch_main ON employee.emp_branchID = branch_main.b_ID
+            WHERE emp_username='$username' AND emp_password='$password'";
+
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($result);
     if($result->num_rows == 1){
@@ -23,9 +27,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         if ($row['emp_employeelevel'] == 'C') {
             $_SESSION['manager_login'] = $row['emp_employeeID'];
+            $_SESSION['manager_branch'] = $row['b_name']; // เก็บชื่อสาขาไว้ใน Session
             header("Location: ../Managerphp/index.php");
         }
-    }else {
+        if ($row['emp_employeelevel'] == 'D') {
+            $_SESSION['manager_login'] = $row['emp_employeeID'];
+            $_SESSION['manager_branch'] = $row['b_name']; // เก็บชื่อสาขาไว้ใน Session
+            header("Location: ../Managerphp/index.php");
+        }
+    } else {
         $_SESSION['duplicate_username'] = true;
         header('location: ../signin_ep.php');
         mysqli_close($conn);
